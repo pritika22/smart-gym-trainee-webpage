@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SmartGym Trainer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --surface: #111111;
+      --card: #161616;
+      --border: #222222;
+      --accent: #f5a623;
+      --accent2: #e03c3c;
+      --text: #f0f0f0;
+      --muted: #888;
+      --radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Barlow', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── HERO ── */
+    header {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a0a00 60%, #0a0a0a 100%);
+      padding: 70px 40px 60px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+    header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(245,166,35,0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .logo-line {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      margin-bottom: 10px;
+    }
+    .logo-icon { font-size: 2.4rem; }
+    header h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3rem, 8vw, 6rem);
+      letter-spacing: 4px;
+      color: var(--accent);
+      line-height: 1;
+    }
+    header h1 span { color: #fff; }
+    header p {
+      color: var(--muted);
+      font-size: 1.1rem;
+      margin-top: 10px;
+      letter-spacing: 1px;
+    }
+    .header-badges {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 22px;
+      flex-wrap: wrap;
+    }
+    .badge {
+      background: rgba(245,166,35,0.12);
+      border: 1px solid rgba(245,166,35,0.3);
+      color: var(--accent);
+      padding: 6px 16px;
+      border-radius: 99px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    /* ── FILTERS ── */
+    .filters-section {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10,10,10,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 40px;
+    }
+    .filters-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .filter-label {
+      color: var(--muted);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      font-weight: 600;
+      margin-right: 4px;
+    }
+    .filter-divider {
+      width: 1px;
+      height: 28px;
+      background: var(--border);
+      margin: 0 6px;
+    }
+    .filter-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 7px 18px;
+      border-radius: 99px;
+      font-family: 'Barlow', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.5px;
+    }
+    .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .filter-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #000;
+    }
+    .filter-btn.level-btn.active {
+      background: var(--accent2);
+      border-color: var(--accent2);
+      color: #fff;
+    }
+
+    /* ── GRID ── */
+    .main { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.6rem;
+      letter-spacing: 3px;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+    .section-title span { color: var(--accent); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    /* ── EXERCISE CARD ── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+      position: relative;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent);
+      box-shadow: 0 8px 32px rgba(245,166,35,0.12);
+    }
+    .card-thumb {
+      height: 160px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 5rem;
+      background: linear-gradient(135deg, #1a1a1a, #222);
+      position: relative;
+    }
+    .card-thumb::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0; right: 0;
+      height: 50px;
+      background: linear-gradient(to bottom, transparent, var(--card));
+    }
+    .card-body { padding: 16px; }
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .muscle-tag {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .level-tag {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 3px 10px;
+      border-radius: 99px;
+    }
+    .level-tag.beginner { background: rgba(80,200,120,0.15); color: #50c878; }
+    .level-tag.advanced { background: rgba(224,60,60,0.15); color: var(--accent2); }
+    .card h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      line-height: 1.2;
+    }
+    .card-stats {
+      display: flex;
+      gap: 16px;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+    .stat { font-size: 0.82rem; color: var(--muted); }
+    .stat strong { display: block; color: var(--text); font-size: 0.92rem; }
+    .card-cta {
+      position: absolute;
+      top: 12px; right: 12px;
+      background: rgba(0,0,0,0.6);
+      border: 1px solid var(--border);
+      color: var(--accent);
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+      backdrop-filter: blur(4px);
+    }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 1000;
+      overflow-y: auto;
+      padding: 30px 20px;
+      backdrop-filter: blur(4px);
+    }
+    .modal-overlay.open { display: flex; align-items: flex-start; justify-content: center; }
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 780px;
+      overflow: hidden;
+      animation: slideUp 0.3s ease;
+    }
+    @keyframes slideUp {
+      from { opacity:0; transform: translateY(30px); }
+      to { opacity:1; transform: translateY(0); }
+    }
+    .modal-header {
+      padding: 28px 32px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      background: linear-gradient(135deg, #111 0%, #1a1000 100%);
+    }
+    .modal-header h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.2rem;
+      letter-spacing: 2px;
+      line-height: 1;
+    }
+    .modal-close {
+      background: var(--border);
+      border: none;
+      color: var(--muted);
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+    .modal-close:hover { background: var(--accent2); color: #fff; }
+    .modal-body { padding: 28px 32px; }
+    .modal-stats {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+    .m-stat {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 20px;
+      text-align: center;
+      flex: 1;
+      min-width: 90px;
+    }
+    .m-stat .val {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.7rem;
+      color: var(--accent);
+      letter-spacing: 1px;
+    }
+    .m-stat .lbl { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+    .steps-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.3rem;
+      letter-spacing: 2px;
+      color: var(--accent);
+      margin-bottom: 14px;
+    }
+    .steps { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+    .steps li {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 16px;
+    }
+    .step-num {
+      background: var(--accent);
+      color: #000;
+      font-weight: 800;
+      font-size: 0.8rem;
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .steps li p { font-size: 0.95rem; line-height: 1.5; color: var(--text); }
+    .pro-tip {
+      background: rgba(245,166,35,0.08);
+      border: 1px solid rgba(245,166,35,0.25);
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-bottom: 28px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .pro-tip .tip-icon { font-size: 1.4rem; flex-shrink: 0; }
+    .pro-tip p { font-size: 0.92rem; color: #d4a843; line-height: 1.5; }
+    .videos-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.3rem;
+      letter-spacing: 2px;
+      color: var(--accent);
+      margin-bottom: 14px;
+    }
+    .videos-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    @media (max-width: 560px) { .videos-grid { grid-template-columns: 1fr; } }
+    .video-wrap {
+      position: relative;
+      padding-bottom: 56.25%;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #000;
+    }
+    .video-wrap iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* ── TIPS SECTION ── */
+    .tips-section {
+      max-width: 1200px;
+      margin: 0 auto 60px;
+      padding: 0 20px;
+    }
+    .tips-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+    }
+    .tip-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      transition: border-color 0.2s;
+    }
+    .tip-card:hover { border-color: rgba(245,166,35,0.4); }
+    .tip-emoji { font-size: 1.8rem; flex-shrink: 0; }
+    .tip-card h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; }
+    .tip-card p { font-size: 0.85rem; color: var(--muted); line-height: 1.5; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      text-align: center;
+      padding: 24px;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+    footer span { color: var(--accent); }
+
+    /* ── EMPTY STATE ── */
+    .empty {
+      grid-column: 1/-1;
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+    }
+    .empty .e-icon { font-size: 3rem; margin-bottom: 12px; }
+    .empty p { font-size: 1rem; }
+
+    @media (max-width: 600px) {
+      header { padding: 50px 20px 40px; }
+      .filters-section { padding: 12px 16px; }
+      .modal-body { padding: 20px; }
+      .modal-header { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo-line">
+    <span class="logo-icon">🏋️</span>
+  </div>
+  <h1><span>Smart</span>Gym <span>Trainer</span></h1>
+  <p>Your personal workout guide — learn, filter, and train smarter</p>
+  <div class="header-badges">
+    <span class="badge">💪 12 Exercises</span>
+    <span class="badge">🎯 5 Muscle Groups</span>
+    <span class="badge">▶️ Video Guides</span>
+    <span class="badge">⭐ Pro Tips</span>
+  </div>
+</header>
+
+<!-- FILTERS -->
+<div class="filters-section">
+  <div class="filters-inner">
+    <span class="filter-label">Muscle</span>
+    <button class="filter-btn active" data-muscle="all">All</button>
+    <button class="filter-btn" data-muscle="Chest">Chest</button>
+    <button class="filter-btn" data-muscle="Back">Back</button>
+    <button class="filter-btn" data-muscle="Legs">Legs</button>
+    <button class="filter-btn" data-muscle="Abs">Abs</button>
+    <button class="filter-btn" data-muscle="Arms">Arms</button>
+    <div class="filter-divider"></div>
+    <span class="filter-label">Level</span>
+    <button class="filter-btn level-btn active" data-level="all">All</button>
+    <button class="filter-btn level-btn" data-level="beginner">Beginner</button>
+    <button class="filter-btn level-btn" data-level="advanced">Advanced</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main class="main">
+  <p class="section-title">EXERCISE <span>LIBRARY</span></p>
+  <div class="grid" id="grid"></div>
+</main>
+
+<!-- PRO TIPS -->
+<section class="tips-section">
+  <p class="section-title" style="margin-bottom:20px">PRO <span>TIPS</span></p>
+  <div class="tips-grid">
+    <div class="tip-card"><span class="tip-emoji">💧</span><div><h4>Stay Hydrated</h4><p>Drink at least 3L of water daily. Dehydration reduces strength and focus by up to 20%.</p></div></div>
+    <div class="tip-card"><span class="tip-emoji">😴</span><div><h4>Sleep 7–9 Hours</h4><p>Muscles grow during rest, not during workouts. Prioritize sleep for maximum gains.</p></div></div>
+    <div class="tip-card"><span class="tip-emoji">🥩</span><div><h4>Protein is Key</h4><p>Aim for 1.6–2g of protein per kg of body weight daily to support muscle repair.</p></div></div>
+    <div class="tip-card"><span class="tip-emoji">🔥</span><div><h4>Always Warm Up</h4><p>Spend 5–10 minutes on dynamic stretching before training to prevent injuries.</p></div></div>
+    <div class="tip-card"><span class="tip-emoji">📈</span><div><h4>Progressive Overload</h4><p>Increase weight or reps each week. Your muscles grow when challenged beyond comfort.</p></div></div>
+    <div class="tip-card"><span class="tip-emoji">🧠</span><div><h4>Mind-Muscle Connection</h4><p>Focus on the muscle you're training. Slow, controlled reps beat heavy, sloppy ones.</p></div></div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>Made with ❤️ by <span>SmartGym Trainer</span> &nbsp;|&nbsp; Your fitness journey starts here 🏆</footer>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div>
+        <div id="modalMuscle" class="muscle-tag" style="margin-bottom:6px"></div>
+        <h2 id="modalTitle"></h2>
+      </div>
+      <button class="modal-close" id="modalClose">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-stats" id="modalStats"></div>
+      <p class="steps-title">HOW TO DO IT</p>
+      <ul class="steps" id="modalSteps"></ul>
+      <div class="pro-tip">
+        <span class="tip-icon">💡</span>
+        <p id="modalTip"></p>
+      </div>
+      <p class="videos-title">WATCH & LEARN</p>
+      <div class="videos-grid" id="modalVideos"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const exercises = [
+  {
+    name: "Bench Press",
+    muscle: "Chest",
+    level: "beginner",
+    emoji: "🏋️",
+    sets: "4",
+    reps: "10–12",
+    rest: "90s",
+    steps: [
+      "Lie flat on the bench with feet firmly on the floor.",
+      "Grip the bar slightly wider than shoulder-width.",
+      "Unrack the bar and hold it above your chest with arms straight.",
+      "Lower the bar slowly to your mid-chest, keeping elbows at 45°.",
+      "Press the bar back up powerfully to starting position."
+    ],
+    tip: "Keep your shoulder blades squeezed together and back arched slightly. Never let the bar bounce off your chest.",
+    videos: ["dSmSmO3IQHY", "vcBig73ojpE"]
+  },
+  {
+    name: "Push-Ups",
+    muscle: "Chest",
+    level: "beginner",
+    emoji: "💪",
+    sets: "3",
+    reps: "15–20",
+    rest: "60s",
+    steps: [
+      "Place hands slightly wider than shoulder-width on the floor.",
+      "Keep your body in a straight line from head to heels.",
+      "Lower your chest to the floor by bending elbows.",
+      "Keep core tight and don't let hips sag.",
+      "Push back up to starting position explosively."
+    ],
+    tip: "For more chest activation, place hands wider. For triceps, bring hands closer together.",
+    videos: ["IODxDxX7oi4", "_l3ySVKYVJ8"]
+  },
+  {
+    name: "Incline Dumbbell Press",
+    muscle: "Chest",
+    level: "advanced",
+    emoji: "🔺",
+    sets: "4",
+    reps: "8–10",
+    rest: "90s",
+    steps: [
+      "Set bench to 30–45 degree incline. Sit back with dumbbells on thighs.",
+      "Kick dumbbells up and press them above your upper chest.",
+      "Lower dumbbells slowly until they're level with your upper chest.",
+      "Press back up and squeeze chest at the top.",
+      "Maintain a slight arch in lower back throughout."
+    ],
+    tip: "Don't go above 45° incline — it shifts work to shoulders, not upper chest.",
+    videos: ["8iPEnn-ltC8", "DbFgADa2PL8"]
+  },
+  {
+    name: "Pull-Ups",
+    muscle: "Back",
+    level: "advanced",
+    emoji: "🦍",
+    sets: "4",
+    reps: "6–10",
+    rest: "90s",
+    steps: [
+      "Hang from the bar with an overhand grip, hands shoulder-width apart.",
+      "Depress and retract your shoulder blades before pulling.",
+      "Pull yourself up until your chin is above the bar.",
+      "Lead with your elbows, squeezing your lats hard.",
+      "Lower slowly and fully extend arms at the bottom."
+    ],
+    tip: "Avoid kipping or swinging. Full range of motion with controlled descent builds more muscle.",
+    videos: ["eGo4IYlbE5g", "Hdc7Mw6BIEE"]
+  },
+  {
+    name: "Bent-Over Row",
+    muscle: "Back",
+    level: "beginner",
+    emoji: "🪝",
+    sets: "4",
+    reps: "10–12",
+    rest: "75s",
+    steps: [
+      "Stand with feet shoulder-width apart, holding barbell or dumbbells.",
+      "Hinge at hips to 45°, keeping back flat and core braced.",
+      "Let arms hang straight down with a neutral grip.",
+      "Pull weight to your lower chest/upper abdomen, elbows close to body.",
+      "Squeeze shoulder blades together at the top, then lower slowly."
+    ],
+    tip: "Keep your spine neutral throughout. Rounding the lower back under load is a common injury risk.",
+    videos: ["vT2GjY_Umpw", "kBWAon7ItDw"]
+  },
+  {
+    name: "Deadlift",
+    muscle: "Back",
+    level: "advanced",
+    emoji: "⚡",
+    sets: "4",
+    reps: "5–6",
+    rest: "2min",
+    steps: [
+      "Stand with bar over mid-foot, feet hip-width apart.",
+      "Hinge at hips and grip bar just outside your legs.",
+      "Take a big breath, brace core, and pull slack from bar.",
+      "Drive feet into the floor and pull bar up along your shins.",
+      "Lock out hips and knees at the top, then lower with control."
+    ],
+    tip: "The bar should drag along your legs the entire way up. If it swings out, you'll hurt your lower back.",
+    videos: ["op9kVnSso6Q", "XxWcirHIwVo"]
+  },
+  {
+    name: "Squats",
+    muscle: "Legs",
+    level: "beginner",
+    emoji: "🦵",
+    sets: "4",
+    reps: "10–12",
+    rest: "90s",
+    steps: [
+      "Stand with feet shoulder-width apart, toes slightly out.",
+      "Hold bar on upper traps or hold dumbbells at sides.",
+      "Take a breath, brace core, and push hips back.",
+      "Lower until thighs are at least parallel to the floor.",
+      "Drive through your heels to stand back up powerfully."
+    ],
+    tip: "Push your knees out in the direction of your toes. Never let them cave inward.",
+    videos: ["ultWZbUMPL8", "nEQQle9-0NA"]
+  },
+  {
+    name: "Romanian Deadlift",
+    muscle: "Legs",
+    level: "advanced",
+    emoji: "🔻",
+    sets: "3",
+    reps: "10–12",
+    rest: "75s",
+    steps: [
+      "Stand holding barbell or dumbbells in front of thighs.",
+      "Hinge at hips, pushing them back as the weight lowers.",
+      "Keep a flat back and slight knee bend throughout.",
+      "Lower until you feel a deep hamstring stretch.",
+      "Drive hips forward to return to standing."
+    ],
+    tip: "This is a hip hinge, not a squat. Keep the weight close to your legs to protect your lower back.",
+    videos: ["JCXUYuzwNrM", "hCDzSR6Vvik"]
+  },
+  {
+    name: "Lunges",
+    muscle: "Legs",
+    level: "beginner",
+    emoji: "🚶",
+    sets: "3",
+    reps: "12 each",
+    rest: "60s",
+    steps: [
+      "Stand tall with feet together, holding dumbbells at sides.",
+      "Step one foot forward about 2 feet in front of you.",
+      "Lower your back knee toward the floor, keeping front shin vertical.",
+      "Front thigh should be parallel to the floor at the bottom.",
+      "Push off front foot to return to start, then alternate legs."
+    ],
+    tip: "Keep your torso upright and core tight. Leaning forward shifts stress to your lower back.",
+    videos: ["QOVaHwm-Q6U", "D7KaRcUTQeE"]
+  },
+  {
+    name: "Plank",
+    muscle: "Abs",
+    level: "beginner",
+    emoji: "📐",
+    sets: "3",
+    reps: "30–60s",
+    rest: "45s",
+    steps: [
+      "Get into push-up position and lower onto your forearms.",
+      "Keep elbows directly below shoulders, forearms flat on floor.",
+      "Create a straight line from head to heels.",
+      "Squeeze glutes, quads, and abs simultaneously.",
+      "Breathe normally and hold the position without letting hips drop."
+    ],
+    tip: "If your hips sag or rise, you've lost the plank. It's better to hold 20 perfect seconds than 60 sloppy ones.",
+    videos: ["ASdvN_XEl_c", "B296mZDhrP4"]
+  },
+  {
+    name: "Crunches",
+    muscle: "Abs",
+    level: "beginner",
+    emoji: "🌀",
+    sets: "4",
+    reps: "20–25",
+    rest: "45s",
+    steps: [
+      "Lie on your back with knees bent, feet flat on floor.",
+      "Cross arms over chest or lightly touch temples.",
+      "Take a breath and curl your upper back off the floor.",
+      "Focus on contracting abs, not pulling your neck.",
+      "Slowly lower back down without fully resting between reps."
+    ],
+    tip: "Exhale forcefully at the top of each crunch for stronger ab contraction.",
+    videos: ["MKmrqcoCZ-M", "Xyd_fa5zoEU"]
+  },
+  {
+    name: "Bicep Curls",
+    muscle: "Arms",
+    level: "beginner",
+    emoji: "💪",
+    sets: "3",
+    reps: "12–15",
+    rest: "60s",
+    steps: [
+      "Stand holding dumbbells at your sides, palms facing forward.",
+      "Keep elbows pinned to your sides throughout the movement.",
+      "Curl both dumbbells up toward your shoulders.",
+      "Squeeze biceps hard at the top for 1 second.",
+      "Lower slowly and with control — the descent builds muscle too."
+    ],
+    tip: "Avoid swinging your body to lift the weight. If you can't keep your torso still, the weight is too heavy.",
+    videos: ["ykJmrZ5v0Oo", "sAq_ocpRh_I"]
+  }
+];
+
+let activeMusc = 'all';
+let activeLvl  = 'all';
+
+function renderGrid() {
+  const grid = document.getElementById('grid');
+  const filtered = exercises.filter(e =>
+    (activeMusc === 'all' || e.muscle === activeMusc) &&
+    (activeLvl === 'all' || e.level === activeLvl)
+  );
+  if (!filtered.length) {
+    grid.innerHTML = `<div class="empty"><div class="e-icon">🔍</div><p>No exercises found for this filter combo.</p></div>`;
+    return;
+  }
+  grid.innerHTML = filtered.map((ex, i) => `
+    <div class="card" onclick="openModal(${exercises.indexOf(ex)})">
+      <div class="card-thumb">${ex.emoji}</div>
+      <div class="card-cta">▶</div>
+      <div class="card-body">
+        <div class="card-meta">
+          <span class="muscle-tag">${ex.muscle}</span>
+          <span class="level-tag ${ex.level}">${ex.level === 'beginner' ? '🟢 Beginner' : '🔴 Advanced'}</span>
+        </div>
+        <h3>${ex.name}</h3>
+        <div class="card-stats">
+          <div class="stat"><strong>${ex.sets}</strong>Sets</div>
+          <div class="stat"><strong>${ex.reps}</strong>Reps</div>
+          <div class="stat"><strong>${ex.rest}</strong>Rest</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openModal(idx) {
+  const ex = exercises[idx];
+  document.getElementById('modalTitle').textContent = ex.name;
+  document.getElementById('modalMuscle').textContent = `${ex.muscle} · ${ex.level.charAt(0).toUpperCase()+ex.level.slice(1)}`;
+  document.getElementById('modalStats').innerHTML = `
+    <div class="m-stat"><div class="val">${ex.sets}</div><div class="lbl">Sets</div></div>
+    <div class="m-stat"><div class="val">${ex.reps}</div><div class="lbl">Reps</div></div>
+    <div class="m-stat"><div class="val">${ex.rest}</div><div class="lbl">Rest</div></div>
+  `;
+  document.getElementById('modalSteps').innerHTML = ex.steps.map((s,i) =>
+    `<li><div class="step-num">${i+1}</div><p>${s}</p></li>`
+  ).join('');
+  document.getElementById('modalTip').textContent = ex.tip;
+  document.getElementById('modalVideos').innerHTML = ex.videos.map(id =>
+    `<div class="video-wrap"><iframe src="https://www.youtube.com/embed/${id}" allowfullscreen loading="lazy"></iframe></div>`
+  ).join('');
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+document.getElementById('modalClose').onclick = closeModal;
+document.getElementById('modalOverlay').onclick = (e) => {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+};
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.querySelectorAll('[data-muscle]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-muscle]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeMusc = btn.dataset.muscle;
+    renderGrid();
+  });
+});
+document.querySelectorAll('[data-level]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-level]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeLvl = btn.dataset.level;
+    renderGrid();
+  });
+});
+
+renderGrid();
+</script>
+</body>
+</html>
